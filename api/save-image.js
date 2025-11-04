@@ -1,5 +1,7 @@
 // File: api/save-image.js
-import { put } from '@vercel/blob';
+import { put } from "@vercel/blob";
+
+const { url } = await put('articles/blob.txt', 'Hello World!', { access: 'public' });
 import { MongoClient } from 'mongodb'; 
 import { Buffer } from 'node:buffer'; // Used for Data URL conversion (supported in Node.js Runtime)
 
