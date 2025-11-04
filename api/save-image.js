@@ -1,36 +1,36 @@
 // File: api/save-image.js
 import { put } from '@vercel/blob';
 import { MongoClient } from 'mongodb'; 
-import { Buffer } from 'node:buffer'; // Import Buffer for Data URL conversion
+import { Buffer } from 'node:buffer'; // Used for Data URL conversion (supported in Node.js Runtime)
 
-// 1. Initialize MongoDB Client
-// URI is securely fetched from Vercel's MONGODB_URI Environment Variable.
+// 1. Initialize MongoDB Client & Connection Caching
+// The URI is securely fetched from Vercel's MONGODB_URI Environment Variable.
 const uri = process.env.MONGODB_URI;
+
+// We initialize the client outside the handler to reuse the connection across invocations.
 const client = new MongoClient(uri, {
     serverSelectionTimeoutMS: 5000, 
-    maxPoolSize: 1, // Max connections for serverless best practice
+    maxPoolSize: 1, // Keep pool small for serverless best practice
 });
-let cachedDb = null; // Cache the database connection
 
-// Configure for the fast Vercel Edge Runtime
-export const config = {
-  runtime: 'edge', 
-};
+let cachedPromise = null; // Cache the promise that connects to the database
 
 /**
  * Connects to MongoDB, reusing the connection if available.
+ * This is the recommended pattern for Node.js Serverless Functions.
  */
-async function connectToDatabase() {
-    if (cachedDb) {
-        return cachedDb;
-    }
-    // Connect to the MongoDB cluster
-    await client.connect();
-    // Use your desired database name:
-    const database = client.db("ImageProcessorDB"); 
-    cachedDb = database;
-    return database;
+function connectToDatabase() {
+  if (cachedPromise) {
+    return cachedPromise;
+  }
+  
+  // Connect and store the promise (for the "ImageProcessorDB" database)
+  cachedPromise = client.connect().then(() => client.db("ImageProcessorDB"));
+  return cachedPromise;
 }
+
+// 🛑 REMOVED: export const config = { runtime: 'edge', };
+// Vercel will now use the standard Node.js Serverless Runtime, resolving the dependency errors.
 
 export default async function handler(req) {
     // Only allow POST requests from the client-side script
@@ -47,8 +47,7 @@ export default async function handler(req) {
         } = body;
 
         // --- A. Upload to Vercel Blob ---
-        // 1. Convert the base64 data URL into a Blob
-        // Data URL format: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgA...
+        // 1. Convert the base64 data URL into a Blob using Node's Buffer
         const base64Image = image_data_url.split(';base64,').pop();
         const buffer = Buffer.from(base64Image, 'base64');
         const imageBlob = new Blob([buffer], { type: 'image/png' });
