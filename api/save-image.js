@@ -1,17 +1,38 @@
-// File: api/save-image.js (Vercel Blob ONLY)
+// File: api/save-image.js (Vercel Blob ONLY - Corrected for Node.js Runtime)
 import { put } from '@vercel/blob';
 import { Buffer } from 'node:buffer'; 
-// NOTE: MongoDB imports and connection logic have been removed.
 
-// Vercel will use the standard Node.js Serverless Runtime by default.
+// Utility function to parse the raw body stream into a JSON object
+async function parseJsonBody(req) {
+    return new Promise((resolve, reject) => {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', () => {
+            try {
+                resolve(JSON.parse(body));
+            } catch (error) {
+                reject(new Error("Failed to parse JSON body"));
+            }
+        });
+        req.on('error', reject);
+    });
+}
 
 export default async function handler(req) {
     if (req.method !== 'POST') {
-        return new Response(JSON.stringify({ message: 'Method Not Allowed' }), { status: 405 });
+        // Return a Web API Response object, which Vercel handles
+        return new Response(JSON.stringify({ message: 'Method Not Allowed' }), { 
+            status: 405, 
+            headers: { 'Content-Type': 'application/json' }
+        });
     }
 
     try {
-        const body = await req.json();
+        // 🛑 CRITICAL FIX: Use the utility function to parse the body stream
+        const body = await parseJsonBody(req);
+        
         const { 
             image_name, operation, original_width, 
             original_height, new_width, new_height, 
@@ -19,21 +40,16 @@ export default async function handler(req) {
         } = body;
 
         // --- A. Upload to Vercel Blob ---
-        
-        // 1. Convert the base64 data URL into a Blob
         const base64Image = image_data_url.split(';base64,').pop();
         const buffer = Buffer.from(base64Image, 'base64');
         const imageBlob = new Blob([buffer], { type: 'image/png' });
 
-        // 2. Create a unique filename and upload
         const filename = `${Date.now()}-${image_name.replace(/\s/g, '_')}.png`;
 
         const blobResult = await put(filename, imageBlob, {
-            access: 'public', // Must be public to view the image URL
+            access: 'public', 
             addRandomSuffix: false, 
         });
-
-        // NOTE: MongoDB logging steps are completely skipped here.
 
         return new Response(JSON.stringify({ 
             message: `Image saved successfully to Vercel Blob. Operation logged: ${operation}`, 
