@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Vision Image Processor</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+</head>
+<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+
+    <div id="app-container">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden max-w-6xl w-full mx-auto">
+            <div class="md:grid md:grid-cols-5">
+                
+                <div class="md:col-span-2 p-6 md:p-8 border-r border-gray-200">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-2xl font-bold text-gray-900">Image Processor</h1>
+                    </div>
+
+                    <div class="space-y-4 mb-6">
+                        <label for="file-upload" class="block text-sm font-medium text-gray-700">1. Upload Image</label>
+                        <input id="file-upload" type="file" accept="image/png, image/jpeg">
+                        <div id="upload-status" class="text-sm text-blue-600"></div>
+                    </div>
+
+                    <div class="space-y-4 mb-6">
+                        <h2 class="text-sm font-medium text-gray-700">2. Scaling Operations</h2>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button id="upscale-btn-1_25" class="w-full bg-gray-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors duration-200 disabled:opacity-50" disabled>
+                                Upscale 1.25x
+                            </button>
+                            <button id="upscale-btn-1_5" class="w-full bg-gray-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors duration-200 disabled:opacity-50" disabled>
+                                Upscale 1.5x
+                            </button>
+                            <button id="downscale-btn-0_75" class="w-full bg-gray-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors duration-200 disabled:opacity-50" disabled>
+                                Downscale 0.75x
+                            </button>
+                            <button id="downscale-btn-0_5" class="w-full bg-gray-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors duration-200 disabled:opacity-50" disabled>
+                                Downscale 0.5x
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 mb-6">
+                        <h2 class="text-sm font-medium text-gray-700">3. Apply Filter</h2>
+                        <div class="flex gap-3">
+                            <select id="filter-select" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value="none">None</option>
+                                <option value="grayscale">Grayscale</option>
+                                <option value="sepia">Sepia</option>
+                                <option value="invert">Invert</option>
+                                <option value="brightness">Brightness (1.1x)</option>
+                                <option value="blur">Blur (3x3)</option>
+                                <option value="sharpen">Sharpen</option>
+                                <option value="emboss">Emboss</option>
+                            </select>
+                            <button id="apply-filter-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50" disabled>
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4 mb-6">
+                        <h2 class="text-sm font-medium text-gray-700">4. Finalize</h2>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button id="reset-btn" class="w-full bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition-colors duration-200 disabled:opacity-50" disabled>
+                                Reset
+                            </button>
+                            <button id="download-btn" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors duration-200 disabled:opacity-50" disabled>
+                                Download PNG
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-3 p-6 md:p-8 bg-gray-50/50">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Original Image</h3>
+                            <canvas id="original-canvas" class="w-full border border-gray-300 rounded-lg shadow-sm"></canvas>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Processed Image</h3>
+                            <canvas id="processed-canvas" class="w-full border border-gray-300 rounded-lg shadow-sm"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 md:p-8 border-t border-gray-200">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Public Gallery</h2>
+                <div id="gallery-grid" class="grid grid-cols-3 md:grid-cols-5 gap-4">
+                    <div id="gallery-loading" class="text-gray-500">Loading images...</div>
+                </div>
+            </div>
+        </div>
+    </div> <script src="script.js" type="module" defer></script>
+</body>
+</html>

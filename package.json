@@ -1,0 +1,21 @@
+{
+  "name": "image-processor-vercel",
+  "version": "1.0.0",
+  "description": "Image processor with Vercel Blob and MongoDB logging.",
+  "main": "api/save-image.js",
+  "scripts": {
+    "start": "echo 'Run on Vercel'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "vercel",
+    "blob",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vercel/blob": "^0.23.0",
+    "mongodb": "^6.3.0"
+  }
+}
